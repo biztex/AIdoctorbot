@@ -1,6 +1,6 @@
 const express = require("express")
 const AIService = require("../services/aiService")
-const { Database } = require("../config/database")
+const DatabaseService = require("../services/databaseService")
 const { authMiddleware } = require("../middleware/auth")
 
 const router = express.Router()
@@ -13,7 +13,7 @@ router.post("/diagnose", authMiddleware, async (req, res) => {
     const diagnosis = await AIService.diagnoseSymptoms(symptoms, chatHistory)
 
     // 診断結果をデータベースに保存
-    await Database.saveDiagnosis(userId, symptoms, diagnosis)
+    await DatabaseService.saveDiagnosis(userId, symptoms, diagnosis)
 
     res.json(diagnosis)
   } catch (error) {
@@ -30,13 +30,26 @@ router.post("/chat", authMiddleware, async (req, res) => {
     const response = await AIService.chatWithAI(message, context)
 
     // チャットメッセージを保存
-    await Database.saveChatMessage(userId, sessionId, message, "user")
-    await Database.saveChatMessage(userId, sessionId, response, "ai")
+    await DatabaseService.saveChatMessage(userId, sessionId, message, "user")
+    await DatabaseService.saveChatMessage(userId, sessionId, response, "ai")
 
     res.json({ response })
   } catch (error) {
     console.error("AIチャットエラー:", error)
     res.status(500).json({ error: "AIチャットに失敗しました" })
+  }
+})
+
+router.get("/chat-history/:sessionId", authMiddleware, async (req, res) => {
+  try {
+    const { sessionId } = req.params
+    const userId = req.user.id
+
+    const history = await DatabaseService.getChatHistory(userId, sessionId)
+    res.json(history)
+  } catch (error) {
+    console.error("チャット履歴取得エラー:", error)
+    res.status(500).json({ error: "チャット履歴の取得に失敗しました" })
   }
 })
 
