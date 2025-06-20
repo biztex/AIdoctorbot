@@ -1,9 +1,20 @@
 const { Pool } = require("pg")
+const mongoose = require("mongoose")
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 })
+
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/ai_medical_db")
+    console.log(`MongoDB接続成功: ${conn.connection.host}`)
+  } catch (error) {
+    console.error("MongoDB接続エラー:", error)
+    process.exit(1)
+  }
+}
 
 // モックデータ（開発用）
 const mockUsers = [
@@ -89,4 +100,4 @@ class Database {
   }
 }
 
-module.exports = { Database, pool }
+module.exports = { Database, connectDB }

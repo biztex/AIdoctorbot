@@ -1,4 +1,5 @@
 "use client"
+
 import { Navigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { Spinner, Center } from "@chakra-ui/react"

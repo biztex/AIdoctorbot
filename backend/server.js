@@ -1,5 +1,6 @@
 const express = require("express")
 const cors = require("cors")
+const { connectDB } = require("./config/database")
 require("dotenv").config()
 
 const authRoutes = require("./routes/auth")
@@ -9,6 +10,9 @@ const userRoutes = require("./routes/users")
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+// MongoDB接続
+connectDB()
 
 // ミドルウェア
 app.use(cors())

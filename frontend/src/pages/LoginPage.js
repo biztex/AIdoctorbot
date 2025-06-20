@@ -18,6 +18,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useAuth } from "../contexts/AuthContext"
+import axios from "axios"
 
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({ username: "", password: "" })
@@ -25,21 +26,28 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+  const [isRegister, setIsRegister] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
-    const result = await login(credentials.username, credentials.password)
+    try {
+      const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login"
+      const response = await axios.post(endpoint, credentials)
 
-    if (result.success) {
+      const { token, user } = response.data
+      localStorage.setItem("token", token)
+      localStorage.setItem("user", JSON.stringify(user))
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+
       navigate("/menu")
-    } else {
-      setError(result.error)
+    } catch (error) {
+      setError(error.response?.data?.error || (isRegister ? "登録に失敗しました" : "ログインに失敗しました"))
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
@@ -81,12 +89,18 @@ const LoginPage = () => {
                   </Alert>
                 )}
 
-                <Button type="submit" colorScheme="brand" width="100%" isLoading={loading} loadingText="ログイン中...">
-                  ログイン
+                <Button
+                  type="submit"
+                  colorScheme="brand"
+                  width="100%"
+                  isLoading={loading}
+                  loadingText={isRegister ? "登録中..." : "ログイン中..."}
+                >
+                  {isRegister ? "新規登録" : "ログイン"}
                 </Button>
 
-                <Button variant="outline" width="100%">
-                  新規登録
+                <Button type="button" variant="outline" width="100%" onClick={() => setIsRegister(!isRegister)}>
+                  {isRegister ? "ログインに戻る" : "新規登録"}
                 </Button>
               </VStack>
             </form>

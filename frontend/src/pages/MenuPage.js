@@ -1,4 +1,5 @@
 "use client"
+
 import { useNavigate } from "react-router-dom"
 import { Container, Card, CardBody, CardHeader, Heading, VStack, Button, Text, Box, Icon } from "@chakra-ui/react"
 import { FaRobot, FaUserMd, FaSignOutAlt, FaCog } from "react-icons/fa"

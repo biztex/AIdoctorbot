@@ -3,6 +3,9 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import axios from "axios"
 
+// ベースURLを設定
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000"
+
 const AuthContext = createContext()
 
 export const useAuth = () => {
